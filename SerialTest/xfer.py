@@ -2,7 +2,15 @@
 import time
 import serial
 
-print("Starting Receiver Program")
+# **********   IMPORTANT   **********
+# Disable Serial console for ttyTHS1
+# On the Nano, execute the following
+#	$ systemctl stop nvgetty
+#	$ systemctl disable nvgetty
+#	$ udevadm trigger
+# ***********************************
+
+print("Starting UART Receiver Program")
 
 serial_port = serial.Serial(
     port="/dev/ttyTHS1",
@@ -11,13 +19,11 @@ serial_port = serial.Serial(
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
 )
+
 # Wait a second to let the port initialize
 time.sleep(1)
 
 try:
-    # Send a simple header
-    serial_port.write("UART Demonstration Program\r\n".encode())
-    serial_port.write("NVIDIA Jetson Nano Developer Kit\r\n".encode())
     while True:
         i = 0
         data = b""
@@ -25,18 +31,7 @@ try:
             if serial_port.inWaiting() > 0:
                 data = data + serial_port.read()
                 i = i + 1
-                #print(data)
-                #serial_port.write(data)
-                # if we get a carriage return, add a line feed too
-                # \r is a carriage return; \n is a line feed
-                # This is to help the tty program on the other end 
-                # Windows is \r\n for carriage return, line feed
-                # Macintosh and Linux use \n
-                if data == "\r".encode():
-                    # For Windows boxen on the other end
-                    serial_port.write("\n".encode())
         print(data)
-
 
 except KeyboardInterrupt:
     print("Exiting Program")
