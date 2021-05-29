@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+
+# py-serial is required: $ sudo apt-get install python3-serial
+
 import time
 import serial
 
