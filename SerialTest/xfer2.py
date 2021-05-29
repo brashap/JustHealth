@@ -16,15 +16,13 @@ time.sleep(1)
 
 try:
     # Send a simple header
-    serial_port.write("UART Demonstration Program\r\n".encode())
-    serial_port.write("NVIDIA Jetson Nano Developer Kit\r\n".encode())
     while True:
-        i = 0
+        #i = 0
         data = b""
-        while i < 176:
-            if serial_port.inWaiting() > 0:
-                data = data + serial_port.read()
-                i = i + 1
+        #while i < 176:
+        if serial_port.inWaiting() > 0:
+            data = data + serial_port.readUntil('\n')
+            #i = i + 1
                 #print(data)
                 #serial_port.write(data)
                 # if we get a carriage return, add a line feed too
@@ -32,9 +30,9 @@ try:
                 # This is to help the tty program on the other end 
                 # Windows is \r\n for carriage return, line feed
                 # Macintosh and Linux use \n
-                if data == "\r".encode():
+            if data == "\r".encode():
                     # For Windows boxen on the other end
-                    serial_port.write("\n".encode())
+                serial_port.write("\n".encode())
         str = data.decode()
         print(data)
         print(str)
