@@ -4,7 +4,7 @@
 // Code Based on this example: w3schools.com/php/php_file_upload.asp
 
 $target_dir = "uploads/";
-$datum = mktime(date('H')+0, date('i'), date('s'), date('m'), date('d'), date('y'));
+$datum = mktime(date('H')-6, date('i'), date('s'), date('m'), date('d'), date('y'));
 $target_file = $target_dir . date('Y.m.d_H:i:s_', $datum) . basename($_FILES["imageFile"]["name"]);
 $uploadOk = 1;
 $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
