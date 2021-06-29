@@ -10,15 +10,17 @@ Brian Rashap (28-JUN-2021)
 #include "soc/rtc_cntl_reg.h"
 #include "esp_camera.h"
 
+// WiFi Credentials
 const char* ssid = "DDCIOT";
 const char* password = "ddcIOT2020";
 
-String serverName = "104.248.4.61";   // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
-//String serverName = "example.com";   // OR REPLACE WITH YOUR DOMAIN NAME
-
-String serverPath = "/upload.php";     // The default serverPath should be upload.php
-
+// Server information
+String serverName = "104.248.4.61"; // DigitalOcean server IP address
 const int serverPort = 80;
+String serverPath = "/upload.php";  // .php code on server
+
+// IP Address Variables
+IPAddress ip, serve;
 
 WiFiClient client;
 
@@ -41,25 +43,22 @@ WiFiClient client;
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-const int timerInterval = 30000;    // time between each HTTP POST image
-unsigned long previousMillis = 0;   // last time image was sent
+const int timerInterval = 300000;    // time between each HTTP POST image
+unsigned long currentTime, lastTime;
 
 void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
   Serial.begin(115200);
 
   WiFi.mode(WIFI_STA);
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.printf("\n\nConnecting to %s\n",ssid);
   WiFi.begin(ssid, password);  
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
+    Serial.printf(".");
     delay(500);
   }
-  Serial.println();
-  Serial.print("ESP32-CAM IP Address: ");
-  Serial.println(WiFi.localIP());
+  ip = WiFi.localIP();
+  Serial.printf("\n\nESP32-CAM IP Address: %i.%i.%i.%i \n",ip[0],ip[1],ip[2],ip[3]);
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -97,19 +96,18 @@ void setup() {
   // camera init
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
-    Serial.printf("Camera init failed with error 0x%x", err);
+    Serial.printf("Camera init failed with error 0x%X\n", err);
     delay(1000);
     ESP.restart();
   }
-
-  sendPhoto(); 
+  lastTime = -999999999;
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= timerInterval) {
+  currentTime = millis();
+  if ((currentTime - lastTime) >= timerInterval) {
     sendPhoto();
-    previousMillis = currentMillis;
+    lastTime = currentTime;
   }
 }
 
@@ -120,15 +118,15 @@ String sendPhoto() {
   camera_fb_t * fb = NULL;
   fb = esp_camera_fb_get();
   if(!fb) {
-    Serial.println("Camera capture failed");
+    Serial.printf("Camera capture failed\n");
     delay(1000);
     ESP.restart();
   }
   
-  Serial.println("Connecting to server: " + serverName);
+  Serial.printf("Connecting to server: %s\n",serverName.c_str());
 
   if (client.connect(serverName.c_str(), serverPort)) {
-    Serial.println("Connection successful!");    
+    Serial.printf("Connection successful! \n");    
     String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
     String tail = "\r\n--RandomNerdTutorials--\r\n";
 
