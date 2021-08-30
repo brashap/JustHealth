@@ -15,7 +15,7 @@ const char* ssid = "DDCIOT";
 const char* password = "ddcIOT2020";
 
 // Server information
-String serverName = "104.248.4.61"; // DigitalOcean server IP address
+String serverName = "138.68.25.152"; // DigitalOcean server IP address
 const int serverPort = 80;
 String serverPath = "/upload.php";  // .php code on server
 
@@ -129,6 +129,7 @@ String sendPhoto() {
     Serial.printf("Connection successful! \n");    
     String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
     String tail = "\r\n--RandomNerdTutorials--\r\n";
+
 
     uint32_t imageLen = fb->len;
     uint32_t extraLen = head.length() + tail.length();
